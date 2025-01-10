@@ -3,4 +3,10 @@
     <string name="connect_to_api">Connect to API</string>
     <string name="api_base_url">API Base URL</string>
     <string name="connect">Connect</string>
+    <string name="submit">Submit</string>
+    <string name="id">ID</string>
+    <string name="options">Options</string>
+    <string name="import_csv">Import CSV</string>
+    <string name="export_csv">Export CSV</string>
+    <string name="reset">Reset</string>
 </resources>

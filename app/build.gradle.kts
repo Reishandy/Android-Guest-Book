@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.reishandy.guestbook"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -22,7 +22,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -55,12 +55,18 @@ dependencies {
     // Imported
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.material.icons.extended)
-    implementation(libs.room.runtime)
-    ksp(libs.room.compiler)
+//    implementation(libs.androidx.material.icons.extended)
     implementation(libs.room.ktx)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.compose)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+
+    implementation(libs.barcode.scanning)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -2,7 +2,6 @@ package com.reishandy.guestbook.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -10,9 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.reishandy.guestbook.R
 import com.reishandy.guestbook.ui.model.GuestBookUiState
 import com.reishandy.guestbook.ui.theme.GuestBookTheme
@@ -65,7 +62,7 @@ fun InitScreen(
             },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Link,
+                    imageVector = Icons.Default.Home,
                     contentDescription = stringResource(R.string.api_base_url)
                 )
             },
@@ -97,7 +94,7 @@ fun InitScreen(
 @Preview
 @Composable
 fun InitScreenPreview() {
-    GuestBookTheme(darkTheme = true) {
+    GuestBookTheme(darkTheme = false) {
         Surface(modifier = Modifier.fillMaxSize()) {
             InitScreen(
                 apiBaseUrl = "http://localhost:8080",
