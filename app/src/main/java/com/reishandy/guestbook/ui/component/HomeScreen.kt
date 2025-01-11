@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -74,89 +75,105 @@ fun HomeScreen(
             onQrCodeScanned = onQrCodeScanned
         )
 
-        Column(
+        Card(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(dimensionResource(R.dimen.padding_xlarge)),
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxWidth()
+                .padding(dimensionResource(R.dimen.padding_xlarge))
+                .align(Alignment.BottomCenter),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            elevation = CardDefaults.cardElevation(dimensionResource(R.dimen.card_elevation))
         ) {
-            EntryDivider()
+            Column(
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.padding_medium)),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                EntryDivider()
 
-            ManualEntryWindow(
-                manualEntry = manualEntry,
-                onManualEntryChange = onManualEntryChange,
-                onManualEntrySubmit = onManualEntrySubmit,
-                onImportCSV = onImportCSV,
-                onExportCSV = onExportCSV,
-                onReset = onReset,
-                onChangeAPI = onChangeAPI
-            )
-
-            if (uiState.isLoading) {
-                Dialog(
-                    onDismissRequest = {},
-                    properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
-                ) {
-                    Card {
-                        Column(
-                            modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(dimensionResource(R.dimen.progress_indicator_size)),
-                                color = MaterialTheme.colorScheme.primary
-                            )
-
-                            Text(
-                                text = stringResource(R.string.loading),
-                                modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium)),
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                }
-
-            }
-
-            if (uiState.dialogUiState.isShowing) {
-                AlertDialog(
-                    icon = {
-                        Icon(
-                            imageVector = uiState.dialogUiState.icon?: Icons.Default.Notifications,
-                            contentDescription = uiState.dialogUiState.title
-                        )
-                    },
-                    title = {
-                        Text(
-                            text = uiState.dialogUiState.title,
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                    },
-                    text = {
-                        Text(
-                            text = uiState.dialogUiState.message,
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    },
-                    onDismissRequest = { uiState.dialogUiState.onDismiss() },
-                    confirmButton = {
-                        TextButton(
-                            onClick = { uiState.dialogUiState.onConfirm() },
-                            content = { Text(uiState.dialogUiState.confirmText) }
-                        )
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = { uiState.dialogUiState.onDismiss() },
-                            content = { Text(uiState.dialogUiState.dismissText) }
-                        )
-                    }
+                ManualEntryWindow(
+                    manualEntry = manualEntry,
+                    onManualEntryChange = onManualEntryChange,
+                    onManualEntrySubmit = onManualEntrySubmit,
+                    onImportCSV = onImportCSV,
+                    onExportCSV = onExportCSV,
+                    onReset = onReset,
+                    onChangeAPI = onChangeAPI
                 )
             }
+        }
+
+
+        if (uiState.isLoading) {
+            Dialog(
+                onDismissRequest = {},
+                properties = DialogProperties(
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false
+                )
+            ) {
+                Card(
+                    elevation = CardDefaults.cardElevation(dimensionResource(R.dimen.card_elevation)),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(dimensionResource(R.dimen.progress_indicator_size)),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        Text(
+                            text = stringResource(R.string.loading),
+                            modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium)),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+
+        }
+
+        if (uiState.dialogUiState.isShowing) {
+            AlertDialog(
+                icon = {
+                    Icon(
+                        imageVector = uiState.dialogUiState.icon ?: Icons.Default.Notifications,
+                        contentDescription = uiState.dialogUiState.title
+                    )
+                },
+                title = {
+                    Text(
+                        text = uiState.dialogUiState.title,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                },
+                text = {
+                    Text(
+                        text = uiState.dialogUiState.message,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                onDismissRequest = { uiState.dialogUiState.onDismiss() },
+                confirmButton = {
+                    TextButton(
+                        onClick = { uiState.dialogUiState.onConfirm() },
+                        content = { Text(uiState.dialogUiState.confirmText) }
+                    )
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { uiState.dialogUiState.onDismiss() },
+                        content = { Text(uiState.dialogUiState.dismissText) }
+                    )
+                }
+            )
         }
     }
 }
@@ -174,17 +191,17 @@ fun QRWindow(
     AndroidView(
         modifier = modifier.fillMaxSize(),
         factory = { context ->
-        PreviewView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            setBackgroundColor(android.graphics.Color.BLACK)
-            scaleType = PreviewView.ScaleType.FILL_START
-        }.also { previewView ->
-            //previewView.controller = cameraController
-            //cameraController.bindToLifecycle(liveCycleOwner)
+            PreviewView(context).apply {
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                setBackgroundColor(android.graphics.Color.BLACK)
+                scaleType = PreviewView.ScaleType.FILL_START
+            }.also { previewView ->
+                //previewView.controller = cameraController
+                //cameraController.bindToLifecycle(liveCycleOwner)
 
-            startQRCodeAnalyzer(context, cameraController, previewView, onQrCodeScanned)
-        }
-    })
+                startQRCodeAnalyzer(context, cameraController, previewView, onQrCodeScanned)
+            }
+        })
 }
 
 @Composable
