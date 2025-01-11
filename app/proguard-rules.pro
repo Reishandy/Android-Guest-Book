@@ -19,7 +19,3 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--keep class androidx.** { *; }
--keep class com.google.** { *; }
--keep class kotlin.** { *; }
--keep class kotlinx.** { *; }
