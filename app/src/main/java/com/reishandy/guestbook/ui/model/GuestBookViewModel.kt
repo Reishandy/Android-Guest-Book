@@ -192,6 +192,8 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun reset() {
         viewModelScope.launch {
+            _uiState.value = GuestBookUiState(isLoading = true, isQrScannerPaused = true)
+
             try {
                 val response = _guestBookApiService?.reset()
 
@@ -224,6 +226,8 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                     message = "Failed to reset : ${e.message}",
                     isError = true
                 )
+            } finally {
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
     }
