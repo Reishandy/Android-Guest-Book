@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +44,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.reishandy.guestbook.R
 import com.reishandy.guestbook.data.startQRCodeAnalyzer
 import com.reishandy.guestbook.ui.model.DialogUiState
@@ -87,9 +90,36 @@ fun HomeScreen(
                 onImportCSV = onImportCSV,
                 onExportCSV = onExportCSV,
                 onReset = onReset,
-                onChangeAPI = onChangeAPI,
-                isCheckingIn = uiState.isCheckingIn
+                onChangeAPI = onChangeAPI
             )
+
+            if (uiState.isLoading) {
+                Dialog(
+                    onDismissRequest = {},
+                    properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+                ) {
+                    Card {
+                        Column(
+                            modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(dimensionResource(R.dimen.progress_indicator_size)),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            Text(
+                                text = stringResource(R.string.loading),
+                                modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium)),
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+
+            }
 
             if (uiState.dialogUiState.isShowing) {
                 AlertDialog(
@@ -193,8 +223,7 @@ fun ManualEntryWindow(
     onImportCSV: () -> Unit,
     onExportCSV: () -> Unit,
     onReset: () -> Unit,
-    onChangeAPI: () -> Unit,
-    isCheckingIn: Boolean
+    onChangeAPI: () -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -227,14 +256,7 @@ fun ManualEntryWindow(
                     .fillMaxWidth()
                     .weight(7f),
                 content = {
-                    if (isCheckingIn) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(dimensionResource(R.dimen.progress_indicator_size)),
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    } else {
-                        Text(stringResource(R.string.submit))
-                    }
+                    Text(stringResource(R.string.submit))
                 }
             )
 

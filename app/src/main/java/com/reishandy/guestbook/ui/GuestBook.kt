@@ -1,7 +1,10 @@
 package com.reishandy.guestbook.ui
 
 import android.app.Application
+import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Surface
@@ -36,6 +39,28 @@ fun GuestBookApp() {
     val guestBookViewModel: GuestBookViewModel =
         viewModel(factory = GuestBookViewModelFactory(application))
     val guestBookUiState by guestBookViewModel.uiState.collectAsState()
+
+    val getContent = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            guestBookViewModel.updateSelectedFileUri(it)
+            guestBookViewModel.importCSV()
+        } ?: run {
+            guestBookViewModel.showToast("No file selected")
+        }
+    }
+
+    val createDocument = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri ->
+        uri?.let {
+            guestBookViewModel.exportCSV(it)
+        } ?: run {
+            guestBookViewModel.showToast("No location selected")
+        }
+    }
+
 
     Surface(modifier = Modifier.fillMaxSize()) {
         NavHost(
@@ -75,10 +100,10 @@ fun GuestBookApp() {
                         guestBookViewModel.checkIn()
                     },
                     onImportCSV = {
-                        // TODO: Implement import CSV
+                        getContent.launch("*/*")
                     },
                     onExportCSV = {
-                        // TODO: Implement export CSV
+                        createDocument.launch("guestbook.csv")
                     },
                     onReset = {
                         guestBookViewModel.resetDoubleCheck()

@@ -1,6 +1,8 @@
 package com.reishandy.guestbook.ui.model
 
 import android.app.Application
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -23,6 +25,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -44,7 +50,7 @@ data class GuestBookUiState(
     val isConnecting: Boolean = false,
     val isErrorConnecting: Boolean = false,
     val connectionError: String = "",
-    val isCheckingIn: Boolean = false,
+    val isLoading: Boolean = false,
     val dialogUiState: DialogUiState = DialogUiState(),
     val isQrScannerPaused: Boolean = false
 )
@@ -54,6 +60,12 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
     val uiState: StateFlow<GuestBookUiState> = _uiState.asStateFlow()
 
     private var _guestBookApiService: GuestBookApiService? = null
+
+    private var _selectedFileUri by mutableStateOf<Uri>(Uri.EMPTY)
+
+    fun updateSelectedFileUri(newUri: Uri) {
+        _selectedFileUri = newUri
+    }
 
     // TEXT FIELD
     var apiBaseUrl by mutableStateOf("")
@@ -110,12 +122,12 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
     fun checkIn() {
         // Check if manual entry is empty
         if (manualEntry.isEmpty()) {
-            showToast("Id is empty")
+            showToast("ID is empty")
             return
         }
 
         viewModelScope.launch {
-            _uiState.value = GuestBookUiState(isCheckingIn = true, isQrScannerPaused = true)
+            _uiState.value = GuestBookUiState(isLoading = true, isQrScannerPaused = true)
 
             try {
                 val response: CheckInResponse? = _guestBookApiService?.checkIn(manualEntry)
@@ -152,7 +164,7 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 )
             } finally {
                 manualEntry = ""
-                _uiState.update { it.copy(isCheckingIn = false) }
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
     }
@@ -209,9 +221,93 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             } catch (e: IOException) {
                 showDialog(
-                    message = "Failed to reset: ${e.message}",
+                    message = "Failed to reset : ${e.message}",
                     isError = true
                 )
+            }
+        }
+    }
+
+    // IMPORT CSV
+    fun importCSV() {
+        viewModelScope.launch {
+            _uiState.value = GuestBookUiState(isLoading = true, isQrScannerPaused = true)
+
+            try {
+                val contentResolver = getApplication<Application>().contentResolver
+                val inputStream = contentResolver.openInputStream(_selectedFileUri)
+                val file = File(getApplication<Application>().cacheDir, "imported_file.csv")
+                inputStream?.use { input ->
+                    file.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+
+                val requestBody = RequestBody.create("text/csv".toMediaTypeOrNull(), file)
+                val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestBody)
+
+                val response = _guestBookApiService?.importCSV(multipartBody)
+
+                if (response != null) {
+                    showDialog(
+                        message = "Import successful: ${response.rows} rows affected",
+                        isError = false
+                    )
+                } else {
+                    throw IOException("Empty response")
+                }
+            } catch (e: retrofit2.HttpException) {
+                // Parse retrofit HTTP error response
+                val errorBody = e.response()?.errorBody()?.string()
+                val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+
+                // Check if response code is 404 or 500, and show error dialog
+                when (e.code()) {
+                    400 -> {
+                        showDialog(
+                            message = "Failed to import CSV: File is not CSV",
+                            isError = true
+                        )
+                    }
+                    500 -> {
+                        showDialog(
+                            message = "Failed to import CSV: ${errorResponse.message}",
+                            isError = true
+                        )
+                    }
+                    else -> {
+                        throw IOException(errorBody)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("GuestBookViewModel", "$e")
+                showDialog(
+                    message = "Failed to import CSV: ${e.message}",
+                    isError = true
+                )
+            } finally {
+                _selectedFileUri = Uri.EMPTY
+                _uiState.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
+    // EXPORT CSV
+    fun exportCSV(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val responseBody = _guestBookApiService?.getCsvData()
+                responseBody?.let { body ->
+                    val contentResolver = getApplication<Application>().contentResolver
+                    contentResolver.openOutputStream(uri)?.use { output ->
+                        body.byteStream().copyTo(output)
+                    }
+                    showToast("CSV exported successfully")
+                } ?: run {
+                    showToast("Failed to export CSV: Empty response")
+                }
+            } catch (e: Exception) {
+                showToast("Failed to export CSV: ${e.message}")
             }
         }
     }
@@ -255,7 +351,7 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
         return outputFormatter.format(zonedDateTime)
     }
 
-    private fun showToast(message: String) {
+    fun showToast(message: String) {
         Toast.makeText(
             getApplication(),
             message,
