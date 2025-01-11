@@ -111,8 +111,8 @@ fun GuestBookApp() {
                         navController.navigate(GuestBookNavItems.INIT.name)
                     },
                     onQrCodeScanned = { scannedText ->
-                        guestBookViewModel.updateManualEntry(scannedText)
                         if (!guestBookUiState.isQrScannerPaused) {
+                            guestBookViewModel.updateManualEntry(scannedText)
                             guestBookViewModel.checkIn()
                         }
                     }
