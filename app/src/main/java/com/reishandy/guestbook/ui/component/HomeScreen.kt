@@ -180,7 +180,7 @@ fun EntryDivider(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = "Manual Entry",
+            text = stringResource(R.string.manual_entry),
             modifier = Modifier.weight(1.5f),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
