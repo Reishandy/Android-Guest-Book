@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Buku Tamu</string>
+    <string name="connect_to_api">Hubungkan ke API</string>
+    <string name="api_base_url">URL API</string>
+    <string name="connect">Hubungkan</string>
+    <string name="submit">Kirim</string>
+    <string name="id">ID</string>
+    <string name="options">Opsi</string>
+    <string name="import_csv">Impor CSV</string>
+    <string name="export_csv">Ekspor CSV</string>
+    <string name="reset">Atur Ulang</string>
+    <string name="loading">Memuat…</string>
+    <string name="failed_to_connect">Gagal terhubung</string>
+    <string name="error">KESALAHAN</string>
+    <string name="success">BERHASIL</string>
+    <string name="ok">OK</string>
+    <string name="id_is_empty">ID kosong</string>
+    <string name="check_in_successful_at">Check-in berhasil pada %1$s</string>
+    <string name="failed_to_check_in">Gagal check-in: %1$s</string>
+    <string name="warning">PERINGATAN</string>
+    <string name="are_you_sure_you_want_to_reset">Apakah Anda yakin ingin mengatur ulang status check-in?</string>
+    <string name="confirm">KONFIRMASI</string>
+    <string name="cancel">Batal</string>
+    <string name="reset_successful_rows_affected">Atur ulang berhasil: %1$s baris telah direset</string>
+    <string name="failed_to_reset">Gagal mengatur ulang: %1$s</string>
+    <string name="import_successful_rows_affected">Impor berhasil: %1$s baris terimpor</string>
+    <string name="failed_to_import_csv_file_is_not_csv">Gagal mengimpor CSV: File bukan CSV</string>
+    <string name="failed_to_import_csv">Gagal mengimpor CSV: %1$s</string>
+    <string name="csv_exported_successfully">CSV berhasil diekspor</string>
+    <string name="failed_to_export_csv_empty_response">Gagal mengekspor CSV: Respons kosong</string>
+    <string name="failed_to_export_csv">Gagal mengekspor CSV: %1$s</string>
+    <string name="empty_url">URL kosong</string>
+    <string name="invalid_url">URL tidak valid</string>
+    <string name="please_select_a_file_to_import">Silakan pilih file untuk diimpor</string>
+    <string name="please_select_a_location_to_save_the_file">Silakan pilih lokasi untuk menyimpan file</string>
+</resources>
