@@ -1,9 +1,10 @@
 package com.reishandy.guestbook.ui.model
 
 import android.app.Application
+import android.hardware.SensorAdditionalInfo
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Warning
@@ -11,9 +12,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.reishandy.guestbook.R
 import com.reishandy.guestbook.data.GuestBookPreferenceManager
 import com.reishandy.guestbook.network.CheckInResponse
 import com.reishandy.guestbook.network.ConnectionResponse
@@ -38,10 +41,11 @@ import kotlin.text.Regex
 data class DialogUiState(
     val isShowing: Boolean = false,
     val icon: ImageVector? = null,
-    val title: String = "",
-    val message: String = "",
-    val confirmText: String = "",
-    val dismissText: String = "",
+    @StringRes val title: Int = 0,
+    @StringRes val message: Int = 0,
+    val additionalInfo: String = "",
+    @StringRes val confirmText: Int = 0,
+    @StringRes val dismissText: Int = 0,
     val onConfirm: () -> Unit = {},
     val onDismiss: () -> Unit = {}
 )
@@ -49,7 +53,7 @@ data class DialogUiState(
 data class GuestBookUiState(
     val isConnecting: Boolean = false,
     val isErrorConnecting: Boolean = false,
-    val connectionError: String = "",
+    @StringRes val connectionError: Int = 0,
     val isLoading: Boolean = false,
     val dialogUiState: DialogUiState = DialogUiState(),
     val isQrScannerPaused: Boolean = false
@@ -87,7 +91,9 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
         onSuccess: () -> Unit
     ) {
         // Validate API base URL
-        validateApiBaseUrl()
+        if (!validateApiBaseUrl()) {
+            return
+        }
 
         // Initialize Retrofit
         _guestBookApiService =
@@ -107,12 +113,12 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
 
                     onSuccess()
                 } else {
-                    throw IOException("Not the expected response")
+                    throw IOException()
                 }
-            } catch (e: IOException) {
+            } catch (_: IOException) {
                 _uiState.value = GuestBookUiState(
                     isErrorConnecting = true,
-                    connectionError = "Failed to connect"
+                    connectionError = R.string.failed_to_connect
                 )
             }
         }
@@ -122,7 +128,10 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
     fun checkIn() {
         // Check if manual entry is empty
         if (manualEntry.isEmpty()) {
-            showToast("ID is empty")
+            showDialog(
+                message = R.string.id_is_empty,
+                isError = true
+            )
             return
         }
 
@@ -140,7 +149,8 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 // Format the time and show success dialog
                 val time = formatToLocalTime(response.time)
                 showDialog(
-                    message = "Check-in successful at $time",
+                    message = R.string.check_in_successful_at,
+                    additionalInfo = time,
                     isError = false
                 )
             } catch (e: retrofit2.HttpException) {
@@ -151,7 +161,8 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 // Check if response code is 404 or 500, and show error dialog
                 if (e.code() == 404 || e.code() == 500) {
                     showDialog(
-                        message = "Failed to check-in: ${errorResponse.message}",
+                        message = R.string.failed_to_check_in,
+                        additionalInfo = errorResponse.message,
                         isError = true
                     )
                 } else {
@@ -159,7 +170,8 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             } catch (e: IOException) {
                 showDialog(
-                    message = "Failed to check-in: ${e.message}",
+                    message = R.string.failed_to_check_in,
+                    additionalInfo = e.message ?: "",
                     isError = true
                 )
             } finally {
@@ -176,10 +188,10 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 dialogUiState = DialogUiState(
                     isShowing = true,
                     icon = Icons.Default.Warning,
-                    title = "Warning",
-                    message = "Are you sure you want to reset?",
-                    confirmText = "Confirm",
-                    dismissText = "Cancel",
+                    title = R.string.warning,
+                    message = R.string.are_you_sure_you_want_to_reset,
+                    confirmText = R.string.confirm,
+                    dismissText = R.string.cancel,
                     onConfirm = {
                         _uiState.value = GuestBookUiState()
                         reset()
@@ -204,7 +216,8 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
 
                 // Show success dialog
                 showDialog(
-                    message = "Reset successful: ${response.rows} rows affected",
+                    message = R.string.reset_successful_rows_affected,
+                    additionalInfo = response.rows,
                     isError = false
                 )
             } catch (e: retrofit2.HttpException) {
@@ -215,7 +228,8 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 // Check if response code is 404 or 500, and show error dialog
                 if (e.code() == 404 || e.code() == 500) {
                     showDialog(
-                        message = "Failed to reset: ${errorResponse.message}",
+                        message = R.string.failed_to_reset,
+                        additionalInfo = errorResponse.message,
                         isError = true
                     )
                 } else {
@@ -223,7 +237,8 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             } catch (e: IOException) {
                 showDialog(
-                    message = "Failed to reset : ${e.message}",
+                    message = R.string.failed_to_reset,
+                    additionalInfo = e.message ?: "",
                     isError = true
                 )
             } finally {
@@ -248,13 +263,15 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 }
 
                 val requestBody = RequestBody.create("text/csv".toMediaTypeOrNull(), file)
-                val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestBody)
+                val multipartBody =
+                    MultipartBody.Part.createFormData("file", file.name, requestBody)
 
                 val response = _guestBookApiService?.importCSV(multipartBody)
 
                 if (response != null) {
                     showDialog(
-                        message = "Import successful: ${response.rows} rows affected",
+                        message = R.string.import_successful_rows_affected,
+                        additionalInfo = response.rows,
                         isError = false
                     )
                 } else {
@@ -269,24 +286,27 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 when (e.code()) {
                     400 -> {
                         showDialog(
-                            message = "Failed to import CSV: File is not CSV",
+                            message = R.string.failed_to_import_csv_file_is_not_csv,
                             isError = true
                         )
                     }
+
                     500 -> {
                         showDialog(
-                            message = "Failed to import CSV: ${errorResponse.message}",
+                            message = R.string.failed_to_import_csv,
+                            additionalInfo = errorResponse.message,
                             isError = true
                         )
                     }
+
                     else -> {
                         throw IOException(errorBody)
                     }
                 }
             } catch (e: Exception) {
-                Log.e("GuestBookViewModel", "$e")
                 showDialog(
-                    message = "Failed to import CSV: ${e.message}",
+                    message = R.string.failed_to_import_csv,
+                    additionalInfo = e.message ?: "",
                     isError = true
                 )
             } finally {
@@ -306,12 +326,22 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                     contentResolver.openOutputStream(uri)?.use { output ->
                         body.byteStream().copyTo(output)
                     }
-                    showToast("CSV exported successfully")
+                    showDialog(
+                        message = R.string.csv_exported_successfully,
+                        isError = false
+                    )
                 } ?: run {
-                    showToast("Failed to export CSV: Empty response")
+                    showDialog(
+                        message = R.string.failed_to_export_csv_empty_response,
+                        isError = true
+                    )
                 }
             } catch (e: Exception) {
-                showToast("Failed to export CSV: ${e.message}")
+                showDialog(
+                    message = R.string.failed_to_export_csv,
+                    additionalInfo = e.message.toString(),
+                    isError = true
+                )
             }
         }
     }
@@ -323,21 +353,21 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
         apiBaseUrl = baseUrl
     }
 
-    private fun validateApiBaseUrl() {
+    private fun validateApiBaseUrl(): Boolean {
         // Validate API base URL empty
         if (apiBaseUrl.isEmpty()) {
-            _uiState.value =
-                GuestBookUiState(isErrorConnecting = true, connectionError = "Empty URL")
-            return
+            _uiState.value = GuestBookUiState(isErrorConnecting = true, connectionError = R.string.empty_url)
+            return false
         }
 
         // Use regex to validate API base URL
-        val regex = Regex("^(https?://)([a-zA-Z0-9.-]+|\\[[0-9a-fA-F:]+])(:\\d{1,5})?(/)?$\n")
+        val regex = Regex("^(https?:\\/\\/)([a-zA-Z0-9.-]+|\\[[0-9a-fA-F:]+])(:\\d{1,5})?(\\/)?")
         if (!regex.matches(apiBaseUrl)) {
-            _uiState.value =
-                GuestBookUiState(isErrorConnecting = true, connectionError = "Invalid URL")
-            return
+            _uiState.value = GuestBookUiState(isErrorConnecting = true, connectionError = R.string.invalid_url)
+            return false
         }
+
+        return true
     }
 
     fun formatToLocalTime(dateTimeString: String): String {
@@ -349,22 +379,16 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
         val localDateTime = LocalDateTime.parse(dateTimeString, inputFormatter)
 
         // Convert to the local time zone
-        val zonedDateTime = localDateTime.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault())
+        val zonedDateTime =
+            localDateTime.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault())
 
         // Format the date-time to the desired pattern
         return outputFormatter.format(zonedDateTime)
     }
 
-    fun showToast(message: String) {
-        Toast.makeText(
-            getApplication(),
-            message,
-            Toast.LENGTH_LONG
-        ).show()
-    }
-
-    private fun showDialog(
-        message: String,
+    fun showDialog(
+        @StringRes message: Int,
+        additionalInfo: String = "",
         isError: Boolean
     ) {
         _uiState.update {
@@ -372,12 +396,11 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 dialogUiState = DialogUiState(
                     isShowing = true,
                     icon = if (isError) Icons.Default.Warning else Icons.Default.CheckCircle,
-                    title = if (isError) "Error" else "Success",
+                    title = if (isError) R.string.error else R.string.success,
                     message = message,
-                    confirmText = "Ok",
-                    dismissText = "Dismiss",
-                    onConfirm = { _uiState.value = GuestBookUiState(isQrScannerPaused = false) },
-                    onDismiss = { _uiState.value = GuestBookUiState(isQrScannerPaused = false) }
+                    additionalInfo = additionalInfo,
+                    confirmText = R.string.ok,
+                    onConfirm = { _uiState.value = GuestBookUiState(isQrScannerPaused = false) }
                 )
             )
         }

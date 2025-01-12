@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Guest Book</string>
     <string name="connect_to_api">Connect to API</string>
-    <string name="api_base_url">API Base URL</string>
+    <string name="api_base_url">API URL</string>
     <string name="connect">Connect</string>
     <string name="submit">Submit</string>
     <string name="id">ID</string>
@@ -10,4 +11,27 @@
     <string name="export_csv">Export CSV</string>
     <string name="reset">Reset</string>
     <string name="loading">Loading…</string>
+    <string name="failed_to_connect">Failed to connect</string>
+    <string name="error">ERROR</string>
+    <string name="success">SUCCESS</string>
+    <string name="ok">OK</string>
+    <string name="id_is_empty">ID is empty</string>
+    <string name="check_in_successful_at">Check-in successful at %1$s</string>
+    <string name="failed_to_check_in">Failed to check-in: %1$s</string>
+    <string name="warning">WARNING</string>
+    <string name="are_you_sure_you_want_to_reset">Are you sure you want to reset check-in status?</string>
+    <string name="confirm">CONFIRM</string>
+    <string name="cancel">Cancel</string>
+    <string name="reset_successful_rows_affected">Reset successful: %1$s entry reset</string>
+    <string name="failed_to_reset">Failed to reset: %1$s</string>
+    <string name="import_successful_rows_affected">Import successful: %1$s rows affected</string>
+    <string name="failed_to_import_csv_file_is_not_csv">Failed to import CSV: File is not CSV</string>
+    <string name="failed_to_import_csv">Failed to import CSV: %1$s</string>
+    <string name="csv_exported_successfully">CSV exported successfully</string>
+    <string name="failed_to_export_csv_empty_response">Failed to export CSV: Empty response</string>
+    <string name="failed_to_export_csv">Failed to export CSV: %1$s</string>
+    <string name="empty_url">Empty URL</string>
+    <string name="invalid_url">Invalid URL</string>
+    <string name="please_select_a_file_to_import">Please select a file to import</string>
+    <string name="please_select_a_location_to_save_the_file">Please select a location to save the file</string>
 </resources>

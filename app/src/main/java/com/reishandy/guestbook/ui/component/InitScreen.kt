@@ -55,7 +55,7 @@ fun InitScreen(
                 .padding(top = dimensionResource(R.dimen.padding_medium)),
             label = {
                 if (uiState.isErrorConnecting) {
-                    Text(text = uiState.connectionError)
+                    Text(text = stringResource(uiState.connectionError))
                 } else {
                     Text(stringResource(R.string.api_base_url))
                 }

@@ -138,43 +138,6 @@ fun HomeScreen(
             }
 
         }
-
-        if (uiState.dialogUiState.isShowing) {
-            AlertDialog(
-                icon = {
-                    Icon(
-                        imageVector = uiState.dialogUiState.icon ?: Icons.Default.Notifications,
-                        contentDescription = uiState.dialogUiState.title
-                    )
-                },
-                title = {
-                    Text(
-                        text = uiState.dialogUiState.title,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                },
-                text = {
-                    Text(
-                        text = uiState.dialogUiState.message,
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                onDismissRequest = { uiState.dialogUiState.onDismiss() },
-                confirmButton = {
-                    TextButton(
-                        onClick = { uiState.dialogUiState.onConfirm() },
-                        content = { Text(uiState.dialogUiState.confirmText) }
-                    )
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { uiState.dialogUiState.onDismiss() },
-                        content = { Text(uiState.dialogUiState.dismissText) }
-                    )
-                }
-            )
-        }
     }
 }
 
@@ -358,23 +321,10 @@ fun OptionDropdown(
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    var uiState: GuestBookUiState = GuestBookUiState(
-        dialogUiState = DialogUiState(
-            isShowing = false,
-            icon = Icons.Default.Notifications,
-            title = "Dialog Title",
-            message = "Dialog Message that is long enough to wrap to the next line",
-            confirmText = "Confirm",
-            dismissText = "Dismiss",
-            onConfirm = {},
-            onDismiss = {}
-        )
-    )
-
     GuestBookTheme(darkTheme = false) {
         Surface(modifier = Modifier.fillMaxSize()) {
             HomeScreen(
-                uiState = uiState,
+                uiState = GuestBookUiState(),
                 manualEntry = "12345678",
                 onManualEntryChange = {},
                 onManualEntrySubmit = {},
