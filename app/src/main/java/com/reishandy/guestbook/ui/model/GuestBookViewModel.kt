@@ -112,6 +112,18 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 } else {
                     throw IOException()
                 }
+            } catch (e: retrofit2.HttpException) {
+               if (e.code() == 503) {
+                    _uiState.value = GuestBookUiState(
+                        isErrorConnecting = true,
+                        connectionError = R.string.service_unavailable
+                    )
+                } else {
+                    _uiState.value = GuestBookUiState(
+                        isErrorConnecting = true,
+                        connectionError = R.string.failed_to_connect
+                    )
+               }
             } catch (_: IOException) {
                 _uiState.value = GuestBookUiState(
                     isErrorConnecting = true,

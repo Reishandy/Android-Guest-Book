@@ -35,4 +35,5 @@
     <string name="please_select_a_file_to_import">Please select a file to import</string>
     <string name="please_select_a_location_to_save_the_file">Please select a location to save the file</string>
     <string name="manual_entry">Manual Entry</string>
+    <string name="service_unavailable">Service unavailable</string>
 </resources>
