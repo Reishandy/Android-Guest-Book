@@ -167,8 +167,8 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                 val errorBody = e.response()?.errorBody()?.string()
                 val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
 
-                // Check if response code is 404 or 500, and show error dialog
-                if (e.code() == 404 || e.code() == 500) {
+                // Check if response code is 400, 404 or 500, and show error dialog
+                if (e.code() == 400 || e.code() == 404 || e.code() == 500) {
                     showDialog(
                         message = R.string.failed_to_check_in,
                         additionalInfo = errorResponse.message,
