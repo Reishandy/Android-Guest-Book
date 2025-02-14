@@ -155,11 +155,10 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
                     throw IOException("Empty response")
                 }
 
-                // Format the time and show success dialog
-                val time = formatToLocalTime(response.time)
+                // Show success dialog
                 showDialog(
                     message = R.string.check_in_successful_at,
-                    additionalInfo = time,
+                    additionalInfo = response.time,
                     isError = false
                 )
             } catch (e: retrofit2.HttpException) {
@@ -377,22 +376,6 @@ class GuestBookViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
         return true
-    }
-
-    fun formatToLocalTime(dateTimeString: String): String {
-        // Define the input and output date-time formats
-        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
-        val outputFormatter = DateTimeFormatter.ofPattern("HH:mm:ss - yyyy-MM-dd")
-
-        // Parse the input date-time string
-        val localDateTime = LocalDateTime.parse(dateTimeString, inputFormatter)
-
-        // Convert to the local time zone
-        val zonedDateTime =
-            localDateTime.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault())
-
-        // Format the date-time to the desired pattern
-        return outputFormatter.format(zonedDateTime)
     }
 
     fun showDialog(
